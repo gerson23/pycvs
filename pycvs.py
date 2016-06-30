@@ -1,0 +1,65 @@
+import pexpect
+import sys
+import getpass
+import json
+import os.path
+
+
+class PyCvs():
+    """
+    Main class for pycvs project.
+    """
+    CONFIGURATON_FILE = os.path.expanduser("~/.pycvs")
+
+    def __init__(self):
+        """
+        Initalize class loading the credentials from the configuration file.
+        """
+        self.credentials = {}
+
+        if not os.path.isfile(self.CONFIGURATON_FILE):
+            print("No configuration file found at {0}"
+                  .format(self.CONFIGURATON_FILE))
+
+            self.credentials["user"] = input("User: ")
+            self.credentials["password"] = getpass.getpass()
+            self.credentials["root"] = input("CVS Root: ")
+            with open(self.CONFIGURATON_FILE, "w") as cfg_file:
+                json.dump(self.credentials, cfg_file, indent=4)
+        else:
+            with open(self.CONFIGURATON_FILE, "r") as cfg_file:
+                self.credentials = json.load(cfg_file)
+
+    def process(self):
+        command = sys.argv[1]
+        if command == "checkout" or command == "co":
+            repo = sys.argv[2]
+            print("Checking out repository {0}".format(repo))
+
+            spawn_str = "cvs -d {0} co {1}".format(self.credentials['root'],
+                                                   repo)
+            cvs_obj = pexpect.spawn(spawn_str)
+            cvs_obj.timeout = 300
+            value = cvs_obj.expect(["password"])
+            if value == 0:
+                cvs_obj.sendline(self.credentials['password'])
+
+            value = cvs_obj.expect([pexpect.EOF])
+            if value == 0:
+                output = cvs_obj.before.decode("utf-8")
+                output = output.split("\n")
+                files = 0
+                dirs = 0
+                for line in output:
+                    if line.startswith("U "):
+                        files += 1
+                    elif line.startswith("cvs server: Updating"):
+                        dirs += 1
+
+                print("")
+                print("{0} files checked out".format(str(files)))
+                print("{0} directories checked out".format(str(dirs)))
+
+if __name__ == "__main__":
+    pycvs = PyCvs()
+    pycvs.process()
