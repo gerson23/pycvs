@@ -32,6 +32,10 @@ class PyCvs():
                 self.credentials = json.load(cfg_file)
 
     def _checkout(self, repo):
+        """
+        Checks out the repository. Prints a resume of the checkout -- number
+        of files and directories.
+        """
         print("Checking out repository {0}".format(repo))
 
         spawn_str = "cvs -d {0} co {1}".format(self.credentials['root'],
@@ -59,7 +63,20 @@ class PyCvs():
             print("{0} directories checked out".format(str(dirs)))
 
     def _status(self):
-        print("Getting status from current repository")
+        """
+        Get cvs status from the server and print and beautyful output
+        (yeah, git style).
+        """
+        if os.path.isfile("CVS/Tag"):
+            with open("CVS/Tag", "r") as tag_file:
+                lines = tag_file.readlines()
+            line = lines[0]
+            if line.startswith("N"):
+                print("On tag {0}".format(line.strip("N\n")))
+            elif line.startswith("T"):
+                print("On branch {0}".format(line.strip("T\n")))
+        else:
+            print("On branch HEAD")
 
         spawn_str = "cvs status"
 
@@ -112,7 +129,13 @@ class PyCvs():
                     print("\t{0}".format(file))
                 print("")
 
+            if new == [] and modified == [] and added == []:
+                print("nothing to commit, working directory clean")
+
     def process(self):
+        """
+        Process the user input.
+        """
         command = sys.argv[1]
         if command == "checkout" or command == "co":
             self._checkout(sys.argv[2])
