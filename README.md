@@ -18,6 +18,7 @@ Supported commands
 This contains the current supported commands:
 
 Checkout a brand new repository:
+
     % ./pycvs.py checkout <repo>
     Checking out repository repo
 
@@ -25,6 +26,7 @@ Checkout a brand new repository:
     70 directories checked out
 
 Get current status of a repository:
+
     % cd my_repo
     % ./pycvs.py status
     On branch HEAD

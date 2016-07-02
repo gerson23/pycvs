@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import pexpect
 import sys
 import getpass
@@ -31,21 +32,38 @@ class PyCvs():
             with open(self.CONFIGURATON_FILE, "r") as cfg_file:
                 self.credentials = json.load(cfg_file)
 
-    def _checkout(self, repo):
+    def _access_cvs(self, cmd):
+        """
+        Spawn the CVS command and login the user.
+
+        Args:
+            cmd(str): CVS command to be spawned.
+
+        Returns:
+            A pexpect object containing the CVS session.
+        """
+        print(cmd)
+        cvs_obj = pexpect.spawn(cmd)
+        cvs_obj.timeout = 300
+        value = cvs_obj.expect([pexpect.EOF, "password"])
+        if value == 1:
+            cvs_obj.sendline(self.credentials['password'])
+
+        return cvs_obj
+
+    def _checkout(self, args):
         """
         Checks out the repository. Prints a resume of the checkout -- number
         of files and directories.
         """
+        repo = args.pop()
+        opts = " ".join(args)
         print("Checking out repository {0}".format(repo))
 
-        spawn_str = "cvs -d {0} co {1}".format(self.credentials['root'],
-                                               repo)
-        cvs_obj = pexpect.spawn(spawn_str)
-        cvs_obj.timeout = 300
-        value = cvs_obj.expect(["password"])
-        if value == 0:
-            cvs_obj.sendline(self.credentials['password'])
-
+        spawn_str = "cvs -d {0} co {2} {1}".format(self.credentials['root'],
+                                                   repo,
+                                                   opts)
+        cvs_obj = self._access_cvs(spawn_str)
         value = cvs_obj.expect([pexpect.EOF])
         if value == 0:
             output = cvs_obj.before.decode("utf-8")
@@ -80,12 +98,7 @@ class PyCvs():
 
         spawn_str = "cvs status"
 
-        cvs_obj = pexpect.spawn(spawn_str)
-        cvs_obj.timeout = 300
-        value = cvs_obj.expect(["password"])
-        if value == 0:
-            cvs_obj.sendline(self.credentials['password'])
-
+        cvs_obj = self._access_cvs(spawn_str)
         value = cvs_obj.expect([pexpect.EOF])
         if value == 0:
             output = cvs_obj.before.decode("utf-8")
@@ -132,15 +145,56 @@ class PyCvs():
             if new == [] and modified == [] and added == []:
                 print("nothing to commit, working directory clean")
 
+    def _add(self, args):
+        """
+        Add the given files to CVS server, in order to be committed later on.
+
+        Args:
+            args(list): the list of files from the command line
+        """
+        # TODO: handle special case to add *
+        for to_add in args:
+            spawn_str = "cvs add {0}".format(to_add)
+            cvs_obj = self._access_cvs(spawn_str)
+            value = cvs_obj.expect([pexpect.EOF])
+            if value == 0:
+                output = cvs_obj.before.decode("utf-8")
+                output = output.split('\n')
+
+                print(output)
+                if os.path.isfile(to_add):
+                    for line in output:
+                        match = re.match(".* scheduling file `(.*)'.*", line)
+                        if match is not None:
+                            print("\tstaging {0} to commit"
+                                  .format(match.group(1)))
+                elif not to_add.endswith("CVS"):
+                    for line in output:
+                        match = re.match("Directory .* added to repository.*",
+                                         line)
+                        if match is not None:
+                            print("Directory {0} added".format(to_add))
+                    files = os.listdir(to_add)
+                    files = map(lambda x: "{0}/{1}".format(to_add, x), files)
+                    self._add(files)
+
     def process(self):
         """
         Process the user input.
         """
-        command = sys.argv[1]
-        if command == "checkout" or command == "co":
-            self._checkout(sys.argv[2])
-        if command == "status":
-            self._status()
+        try:
+            command = sys.argv[1]
+        except IndexError:
+            print("Nothing to do")
+        else:
+            if command == "checkout" or command == "co":
+                self._checkout(sys.argv[2:])
+            elif command == "status":
+                self._status()
+            elif command == "add":
+                self._add(sys.argv[2:])
+            else:
+                print("Unknown command {0}".format(command))
 
 if __name__ == "__main__":
     pycvs = PyCvs()
