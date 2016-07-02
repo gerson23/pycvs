@@ -1,10 +1,14 @@
 #! /usr/bin/env python3
-import pexpect
+# Common python packages
 import sys
 import getpass
 import json
 import os.path
 import re
+
+# Additional dependencies
+import pexpect
+from colorama import Fore, Style
 
 
 class PyCvs():
@@ -42,7 +46,6 @@ class PyCvs():
         Returns:
             A pexpect object containing the CVS session.
         """
-        print(cmd)
         cvs_obj = pexpect.spawn(cmd)
         cvs_obj.timeout = 300
         value = cvs_obj.expect([pexpect.EOF, "password"])
@@ -127,20 +130,25 @@ class PyCvs():
                 print("Untracked files:")
                 print(" (use cvs add <file>... to add them for commit)\n")
                 for file in new:
-                    print("\t{0}".format(file))
-                print("")
+                    print(Fore.RED, "\t{0}".format(file))
+                print(Style.RESET_ALL, "")
             if len(modified) != 0:
                 print("Changes staged for commit:")
                 print(" (use cvs commit... to check them in)\n")
                 for file in modified:
-                    print("\t{0}".format(file))
-                print("")
+                    print(Fore.GREEN, "\tmodified:\t", end="")
+                    print("{0}".format(file))
+                print(Style.RESET_ALL, "")
             if len(added) != 0:
                 print("New files staged for commit:")
                 print(" (use cvs commit... to check them in)\n")
                 for file in added:
-                    print("\t{0}".format(file))
-                print("")
+                    if os.path.isfile(file.strip()):
+                        print(Fore.RED, "\tnew file:\t", end=""),
+                    else:
+                        print(Fore.RED, "\tnew directory:\t", end="")
+                    print("{0}".format(file))
+                print(Style.RESET_ALL, "")
 
             if new == [] and modified == [] and added == []:
                 print("nothing to commit, working directory clean")
@@ -161,7 +169,6 @@ class PyCvs():
                 output = cvs_obj.before.decode("utf-8")
                 output = output.split('\n')
 
-                print(output)
                 if os.path.isfile(to_add):
                     for line in output:
                         match = re.match(".* scheduling file `(.*)'.*", line)
@@ -170,7 +177,7 @@ class PyCvs():
                                   .format(match.group(1)))
                 elif not to_add.endswith("CVS"):
                     for line in output:
-                        match = re.match("Directory .* added to repository.*",
+                        match = re.match("Directory .* to the repository.*",
                                          line)
                         if match is not None:
                             print("Directory {0} added".format(to_add))

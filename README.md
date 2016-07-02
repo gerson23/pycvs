@@ -39,3 +39,11 @@ Get current status of a repository:
      (use cvs commit... to check them in)
 
     	./my_script.py
+
+Add new files to repository. It works recursively:
+
+    % cd my_repo
+    % ./pycvs.py add foo/
+    Directory foo added
+    	staging foo/bla to commit
+    	staging foo/ble to commit
