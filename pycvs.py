@@ -76,6 +76,7 @@ class PyCvs():
 
             modified = []
             new = []
+            added = []
             current_dir = ""
 
             for line in output:
@@ -85,6 +86,8 @@ class PyCvs():
                 if match_file is not None:
                     if match_file.group(2) == "Locally Modified":
                         modified.append(current_dir + match_file.group(1))
+                    if match_file.group(2) == "Locally Added":
+                        added.append(current_dir + match_file.group(1))
                 elif match_dir is not None:
                     current_dir = match_dir.group(1) + '/'
                 elif match_new is not None:
@@ -100,6 +103,12 @@ class PyCvs():
                 print("Changes staged for commit:")
                 print(" (use cvs commit... to check them in)\n")
                 for file in modified:
+                    print("\t{0}".format(file))
+                print("")
+            if len(added) != 0:
+                print("New files staged for commit:")
+                print(" (use cvs commit... to check them in)\n")
+                for file in added:
                     print("\t{0}".format(file))
                 print("")
 
