@@ -5,6 +5,7 @@ import getpass
 import json
 import os.path
 import re
+import shutil
 
 # Additional dependencies
 import pexpect
@@ -21,6 +22,10 @@ class PyCvs():
         """
         Initalize class loading the credentials from the configuration file.
         """
+        if shutil.which("cvs") is None:
+            print("Could not find cvs installation")
+            exit(1)
+
         self.credentials = {}
 
         if not os.path.isfile(self.CONFIGURATON_FILE):
