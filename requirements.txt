@@ -1,2 +1,2 @@
-pexpect==4.1.0
-colorama==0.3.7
+pexpect>=4.1.0
+colorama>=0.3.7

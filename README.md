@@ -7,10 +7,24 @@ Yeah, I know that CVS is a hundred years old, but sometimes you are stick to wor
 Dependencies
 ------------
 
-It runs only on Python 3 and depends on some libraries (available at PyPi):
+It runs only on Python 3 and depends on some libraries (available at PyPI):
 
-* pexpect>=4.*
+* pexpect>=4.1.0
+* colorama>=0.3.7
 
+
+Installation
+------------
+
+To install the package from the source:
+
+    python setup.py install
+
+Or to install form the PyPI (soon):
+
+    pip install pycvs
+
+In both options the command pycvs will be available from the command line.
 
 Supported commands
 ------------------
@@ -19,7 +33,7 @@ This contains the current supported commands:
 
 Checkout a brand new repository:
 
-    % ./pycvs.py checkout <repo>
+    % pycvs checkout <repo>
     Checking out repository repo
 
     385 files checked out
@@ -28,7 +42,7 @@ Checkout a brand new repository:
 Get current status of a repository:
 
     % cd my_repo
-    % ./pycvs.py status
+    % pycvs status
     On branch HEAD
     Untracked files:
      (use cvs add <file>... to add them for commit)
@@ -43,7 +57,7 @@ Get current status of a repository:
 Add new files to repository. It works recursively:
 
     % cd my_repo
-    % ./pycvs.py add foo/
+    % pycvs add foo/
     Directory foo added
     	staging foo/bla to commit
     	staging foo/ble to commit
