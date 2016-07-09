@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+
+from pycvs.cli import PyCvs
+
+
+if __name__ == "__main__":
+    pycvs = PyCvs()
+    pycvs.process()

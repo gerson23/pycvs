@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 # Common python packages
 import sys
 import getpass
@@ -207,7 +206,3 @@ class PyCvs():
                 self._add(sys.argv[2:])
             else:
                 print("Unknown command {0}".format(command))
-
-if __name__ == "__main__":
-    pycvs = PyCvs()
-    pycvs.process()
