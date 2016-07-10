@@ -108,6 +108,48 @@ class PyCvs():
             print("{0} files checked out".format(str(files)))
             print("{0} directories checked out".format(str(dirs)))
 
+    def _update(self, args=[]):
+        """
+        Run the CVS update command in the current working directory.
+
+        Args:
+            args(list): Command line arguments list. Defaults to []
+        """
+        if os.path.isfile("CVS/Repository"):
+            with open("CVS/Repository", "r") as repo_file:
+                lines = repo_file.readlines()
+            current_dir = lines[0].strip()
+        else:
+            print("Not in a CVS repository")
+            exit(1)
+        opts = " ".join(args)
+        print("Updating from {0}".format(current_dir))
+        print("")
+
+        spawn_str = "cvs up {0}".format(opts)
+        cvs_obj = self._access_cvs(spawn_str)
+        value = cvs_obj.expect([pexpect.EOF])
+        if value == 0:
+            output = cvs_obj.before.decode("utf-8")
+            output = output.split("\n")
+            files = 0
+            conflicts = 0
+
+            for line in output:
+                if line.startswith("U "):
+                    files += 1
+                elif line.startswith("C "):
+                    conflicts += 1
+                    filename = re.match("C (.*)\s", line).group(1)
+                    print("Conflict on file {0}".format(filename))
+
+        print("")
+        if files > 0:
+            print("{0} files updated".format(str(files)))
+        if conflicts > 0:
+            print("{0} conflicted files".format(str(conflicts)), end="")
+            print(" (solve them before commit!)")
+
     def _status(self):
         """
         Get cvs status from the server and print and beautyful output
@@ -220,10 +262,21 @@ class PyCvs():
             print("Nothing to do")
         else:
             if command == "checkout" or command == "co":
-                self._checkout(sys.argv[2:])
+                try:
+                    self._checkout(sys.argv[2:])
+                except IndexError:
+                    print("Missing arguments for {0} command".format(command))
             elif command == "status":
                 self._status()
             elif command == "add":
-                self._add(sys.argv[2:])
+                try:
+                    self._add(sys.argv[2:])
+                except IndexError:
+                    print("Missing arguments for {0} command".format(command))
+            elif command == "update" or command == "up":
+                try:
+                    self._update(sys.argv[2:])
+                except IndexError:
+                    self._update()
             else:
                 print("Unknown command {0}".format(command))
