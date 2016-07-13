@@ -26,6 +26,7 @@ import json
 import os.path
 import re
 import shutil
+import pydoc
 
 # Additional dependencies
 import pexpect
@@ -252,6 +253,36 @@ class PyCvs():
                     files = map(lambda x: "{0}/{1}".format(to_add, x), files)
                     self._add(files)
 
+    def _diff(self, args):
+        """
+        Found the diff between revisions.
+
+        Args:
+            args(list): Command line arguments for diff
+        """
+        # I do like unified diff syntax
+        if "-u" not in args:
+            args.insert(0, "-u")
+
+        opts = " ".join(args)
+        spawn_str = "cvs diff {0}".format(opts)
+        cvs_obj = self._access_cvs(spawn_str)
+        value = cvs_obj.expect([pexpect.EOF])
+        if value == 0:
+            output = cvs_obj.before.decode("utf-8")
+            output = output.split("\n")
+            output = filter(lambda x: "cvs server:" not in x, output)
+            output_colored = []
+            for line in output:
+                if line.startswith("+") and not line.startswith("+++"):
+                    line = Fore.GREEN + line
+                elif line.startswith("-") and not line.startswith("---"):
+                    line = Fore.RED + line
+                elif line.startswith("@@"):
+                    line = Fore.CYAN + line
+                output_colored.append(line)
+            pydoc.pipepager("\n".join(output_colored), cmd="less -R")
+
     def process(self):
         """
         Process the user input.
@@ -278,5 +309,10 @@ class PyCvs():
                     self._update(sys.argv[2:])
                 except IndexError:
                     self._update()
+            elif command == "diff":
+                try:
+                    self._diff(sys.argv[2:])
+                except IndexError:
+                    print("Missing diff parameters")
             else:
                 print("Unknown command {0}".format(command))
