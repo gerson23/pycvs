@@ -31,13 +31,15 @@ Supported commands
 
 This contains the current supported commands:
 
-Checkout a brand new repository:
+Checkout a brand new repository or update an existing one:
 
     % pycvs checkout <repo>
     Checking out repository repo
 
     385 files checked out
     70 directories checked out
+
+    % pycvs update <repo>
 
 Get current status of a repository:
 
@@ -61,3 +63,8 @@ Add new files to repository. It works recursively:
     Directory foo added
     	staging foo/bla to commit
     	staging foo/ble to commit
+
+Diff the modified files from the server:
+
+    % pycvs diff [parameters]
+    (open a less windows with the differences in the unified syntax and colors)
