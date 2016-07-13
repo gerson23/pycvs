@@ -3,9 +3,12 @@ A python client for CVS repositories.
 
 Yeah, I know that CVS is a hundred years old, but sometimes you are stick to work with it. This utility is your best buddy to help you out! :)
 
+### Advantages
+* No password prompting
+* Beautiful output
+* Recursive addition
 
-Dependencies
-------------
+## Dependencies
 
 It runs only on Python 3 and depends on some libraries (available at PyPI):
 
@@ -13,8 +16,7 @@ It runs only on Python 3 and depends on some libraries (available at PyPI):
 * colorama>=0.3.7
 
 
-Installation
-------------
+## Installation
 
 To install the package from the source:
 
@@ -26,8 +28,7 @@ Or to install form the PyPI (soon):
 
 In both options the command pycvs will be available from the command line.
 
-Supported commands
-------------------
+## Supported commands
 
 This contains the current supported commands:
 
