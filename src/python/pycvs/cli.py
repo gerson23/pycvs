@@ -64,7 +64,8 @@ class PyCvs():
 
     def _access_cvs(self, cmd):
         """
-        Spawn the CVS command and login the user.
+        Spawn the CVS command and login the user. Also check whether the
+        password was accept.
 
         Args:
             cmd(str): CVS command to be spawned.
@@ -77,6 +78,12 @@ class PyCvs():
         value = cvs_obj.expect([pexpect.EOF, "password"])
         if value == 1:
             cvs_obj.sendline(self.credentials['password'])
+
+        value = cvs_obj.expect([pexpect.EOF, "Permission denied"])
+        if value == 1:
+            print("Invalid password for {0} (~/.pycvs)"
+                  .format(self.credentials["user"]))
+            return None
 
         return cvs_obj
 
@@ -93,8 +100,7 @@ class PyCvs():
                                                    repo,
                                                    opts)
         cvs_obj = self._access_cvs(spawn_str)
-        value = cvs_obj.expect([pexpect.EOF])
-        if value == 0:
+        if cvs_obj is not None:
             output = cvs_obj.before.decode("utf-8")
             output = output.split("\n")
             files = 0
@@ -129,8 +135,7 @@ class PyCvs():
 
         spawn_str = "cvs up {0}".format(opts)
         cvs_obj = self._access_cvs(spawn_str)
-        value = cvs_obj.expect([pexpect.EOF])
-        if value == 0:
+        if cvs_obj is not None:
             output = cvs_obj.before.decode("utf-8")
             output = output.split("\n")
             files = 0
@@ -144,12 +149,12 @@ class PyCvs():
                     filename = re.match("C (.*)\s", line).group(1)
                     print("Conflict on file {0}".format(filename))
 
-        print("")
-        if files > 0:
-            print("{0} files updated".format(str(files)))
-        if conflicts > 0:
-            print("{0} conflicted files".format(str(conflicts)), end="")
-            print(" (solve them before commit!)")
+            print("")
+            if files > 0:
+                print("{0} files updated".format(str(files)))
+            if conflicts > 0:
+                print("{0} conflicted files".format(str(conflicts)), end="")
+                print(" (solve them before commit!)")
 
     def _status(self):
         """
@@ -170,8 +175,7 @@ class PyCvs():
         spawn_str = "cvs status"
 
         cvs_obj = self._access_cvs(spawn_str)
-        value = cvs_obj.expect([pexpect.EOF])
-        if value == 0:
+        if cvs_obj is not None:
             output = cvs_obj.before.decode("utf-8")
             output = output.split('\n')
 
@@ -252,8 +256,7 @@ class PyCvs():
         for to_add in args:
             spawn_str = "cvs add {0}".format(to_add)
             cvs_obj = self._access_cvs(spawn_str)
-            value = cvs_obj.expect([pexpect.EOF])
-            if value == 0:
+            if cvs_obj is not None:
                 output = cvs_obj.before.decode("utf-8")
                 output = output.split('\n')
 
@@ -287,8 +290,7 @@ class PyCvs():
         opts = " ".join(args)
         spawn_str = "cvs diff {0}".format(opts)
         cvs_obj = self._access_cvs(spawn_str)
-        value = cvs_obj.expect([pexpect.EOF])
-        if value == 0:
+        if cvs_obj is not None:
             output = cvs_obj.before.decode("utf-8")
             output = output.split("\n")
             output = filter(lambda x: "cvs server:" not in x, output)
