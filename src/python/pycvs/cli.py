@@ -178,6 +178,8 @@ class PyCvs():
             modified = []
             new = []
             added = []
+            outdated = []
+            merging = []
             current_dir = ""
 
             for line in output:
@@ -187,8 +189,12 @@ class PyCvs():
                 if match_file is not None:
                     if match_file.group(2) == "Locally Modified":
                         modified.append(current_dir + match_file.group(1))
-                    if match_file.group(2) == "Locally Added":
+                    elif match_file.group(2) == "Locally Added":
                         added.append(current_dir + match_file.group(1))
+                    elif match_file.group(2) == "Needs Patch":
+                        outdated.append(current_dir + match_file.group(1))
+                    elif match_file.group(2) == "Needs Merge":
+                        merging.append(current_dir + match_file.group(1))
                 elif match_dir is not None:
                     current_dir = match_dir.group(1) + '/'
                 elif match_new is not None:
@@ -196,7 +202,7 @@ class PyCvs():
 
             if len(new) != 0:
                 print("Untracked files:")
-                print(" (use cvs add <file>... to add them for commit)\n")
+                print(" (use pycvs add <file>... to add them for commit)\n")
                 for file in new:
                     print(Fore.RED, "\t{0}".format(file))
                 print(Style.RESET_ALL, "")
@@ -216,6 +222,20 @@ class PyCvs():
                     else:
                         print(Fore.RED, "\tnew directory:\t", end="")
                     print("{0}".format(file))
+                print(Style.RESET_ALL, "")
+            if len(outdated) != 0:
+                print("Outdated files:")
+                print(" (use pycvs up <file>... to update them)\n")
+                for file in outdated:
+                    print(Fore.CYAN, "\toutdated:\t", end="")
+                    print(file)
+                print(Style.RESET_ALL, "")
+            if len(merging) != 0:
+                print("Changes that need to be merged before commit:")
+                print(" (use pycvs up <file>... to update them)\n")
+                for file in merging:
+                    print(Fore.CYAN, "\tto merge:\t", end="")
+                    print(file)
                 print(Style.RESET_ALL, "")
 
             if new == [] and modified == [] and added == []:
