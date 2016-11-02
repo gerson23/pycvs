@@ -69,3 +69,8 @@ Diff the modified files from the server:
 
     % pycvs diff [parameters]
     (open a less windows with the differences in the unified syntax and colors)
+
+Log the file history from the server:
+
+    % pycvs log [parameters]
+    (open a less windown with file's revisions, tags...)

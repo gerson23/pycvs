@@ -305,6 +305,20 @@ class PyCvs():
                 output_colored.append(line)
             pydoc.pipepager("\n".join(output_colored), cmd="less -R")
 
+    def _log(self, args):
+        """
+        Display the log of commits of files.
+
+        Args:
+            args(list): Command line arguments for log
+        """
+        opts = " ".join(args)
+        spawn_str = "cvs log {0}".format(opts)
+        cvs_obj = self._access_cvs(spawn_str)
+        if cvs_obj is not None:
+            output = cvs_obj.before.decode("utf-8")
+            pydoc.pipepager(output, cmd="less -R")
+
     def process(self):
         """
         Process the user input.
@@ -336,5 +350,10 @@ class PyCvs():
                     self._diff(sys.argv[2:])
                 except IndexError:
                     print("Missing diff parameters")
+            elif command == "log":
+                try:
+                    self._log(sys.argv[2:])
+                except IndexError:
+                    print("Missing arguments for {0} command".format(command))
             else:
                 print("Unknown command {0}".format(command))
