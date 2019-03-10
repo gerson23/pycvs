@@ -146,7 +146,7 @@ class PyCvs():
                     files += 1
                 elif line.startswith("C "):
                     conflicts += 1
-                    filename = re.match("C (.*)\s", line).group(1)
+                    filename = re.match(r"C (.*)\s", line).group(1)
                     print("Conflict on file {0}".format(filename))
 
             print("")
@@ -187,9 +187,9 @@ class PyCvs():
             current_dir = ""
 
             for line in output:
-                match_file = re.match("File: (.*)\s+Status: (.*)\s", line)
-                match_dir = re.match(".*Examining (.*)\s", line)
-                match_new = re.match("\?\s+(.*)\s", line)
+                match_file = re.match(r"File: (.*)\s+Status: (.*)\s", line)
+                match_dir = re.match(r".*Examining (.*)\s", line)
+                match_new = re.match(r"\?\s+(.*)\s", line)
                 if match_file is not None:
                     if match_file.group(2) == "Locally Modified":
                         modified.append(current_dir + match_file.group(1))

@@ -23,7 +23,7 @@
 
 from distutils.core import setup
 
-setup(name='Pycvs',
+setup(name='pycvs',
       version='0.0.1',
       description='A Python client for CVS projects',
       author='Gerson Carlos',
