@@ -184,6 +184,7 @@ class PyCvs():
             added = []
             outdated = []
             merging = []
+            merged = []
             current_dir = ""
 
             for line in output:
@@ -191,6 +192,8 @@ class PyCvs():
                 if match_file is None:
                     match_file = re.match(r"File: (.*)\s+Status: (.*)$", line)
                 match_dir = re.match(r".*Examining (.*)\s", line)
+                if match_dir is None:
+                    match_dir = re.match(r".*Examining (.*)$", line)
                 match_new = re.match(r"\?\s+(.*)\s", line)
                 if match_file is not None:
                     if match_file.group(2) == "Locally Modified":
@@ -201,6 +204,8 @@ class PyCvs():
                         outdated.append(current_dir + match_file.group(1))
                     elif match_file.group(2) == "Needs Merge":
                         merging.append(current_dir + match_file.group(1))
+                    elif match_file.group(2) == "File had conflicts on merge":
+                        merged.append(current_dir + match_file.group(1))
                 elif match_dir is not None:
                     current_dir = match_dir.group(1) + '/'
                 elif match_new is not None:
@@ -243,8 +248,15 @@ class PyCvs():
                     print(Fore.CYAN, "\tto merge:\t", end="")
                     print(file)
                 print(Style.RESET_ALL, "")
+            if len(merged) != 0:
+                print("Files that had conflicts and need to be committed:")
+                print(" (use cvs commit <file>... to check them in)\n")
+                for file in merged:
+                    print(Fore.GREEN, "\tmerged:\t", end="")
+                    print("{0}".format(file))
+                print(Style.RESET_ALL, "")
 
-            if new == [] and modified == [] and added == []:
+            if new == [] and modified == [] and added == [] and merged == []:
                 print("nothing to commit, working directory clean")
 
     def _add(self, args):
