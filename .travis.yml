@@ -6,4 +6,6 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install .
-script: pytest
+script:
+  - flake8
+  - pytest
