@@ -1,2 +1,4 @@
 pexpect>=4.1.0
 colorama>=0.3.7
+pytest>=4.3.0
+pytest-mock>=1.10.1
