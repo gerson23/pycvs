@@ -1,4 +1,6 @@
 # pycvs
+[![Build Status](https://travis-ci.org/gerson23/pycvs.svg?branch=master)](https://travis-ci.org/gerson23/pycvs)
+
 A python client for CVS repositories.
 
 Yeah, I know that CVS is a hundred years old, but sometimes you are stick to work with it. This utility is your best buddy to help you out! :)
