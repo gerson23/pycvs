@@ -1,5 +1,5 @@
 # pycvs
-[![Build Status](https://travis-ci.org/gerson23/pycvs.svg?branch=master)](https://travis-ci.org/gerson23/pycvs)
+[![Build Status](https://travis-ci.org/gerson23/pycvs.svg?branch=master)](https://travis-ci.org/gerson23/pycvs)![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pycvs.svg)
 
 A python client for CVS repositories.
 
