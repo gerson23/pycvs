@@ -187,7 +187,9 @@ class PyCvs():
             current_dir = ""
 
             for line in output:
-                match_file = re.match(r"File: (.*)\s+Status: (.*)\s", line)
+                match_file = re.match(r"File: (.*)\s+Status: (.*)\s+$", line)
+                if match_file is None:
+                    match_file = re.match(r"File: (.*)\s+Status: (.*)$", line)
                 match_dir = re.match(r".*Examining (.*)\s", line)
                 match_new = re.match(r"\?\s+(.*)\s", line)
                 if match_file is not None:
