@@ -20,12 +20,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import setuptools
 from distutils.core import setup
+
+# read the contents of your README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(name='pycvs',
       version='0.0.1',
       description='A Python client for CVS projects',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       author='Gerson Carlos',
       author_email='gerson.mtg@gmail.com',
       url='https://github.com/gerson23/pycvs',
@@ -33,5 +41,15 @@ setup(name='pycvs',
       scripts=['src/scripts/pycvs'],
       package_dir={'': 'src/python'},
       packages=['pycvs'],
+      classifiers=[
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'License :: OSI Approved :: MIT License',
+            'Operating System :: Unix',
+            'Topic :: Software Development :: Version Control :: CVS',
+            'Topic :: Utilities'
+      ],
       install_requires=['pexpect', 'colorama']
       )
