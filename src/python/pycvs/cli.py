@@ -32,6 +32,10 @@ import pydoc
 import pexpect
 from colorama import Fore, Style
 
+# Library packages
+from pycvs.data import FileStatus
+from pycvs.data import FILE_ADDED, FILE_MERGED, FILE_MERGING, FILE_MODIFIED, FILE_NEW, FILE_REMOVED, FILE_OUTDATED
+
 
 class PyCvs():
     """
@@ -179,12 +183,7 @@ class PyCvs():
             output = cvs_obj.before.decode("utf-8")
             output = output.split('\n')
 
-            modified = []
-            new = []
-            added = []
-            outdated = []
-            merging = []
-            merged = []
+            files = FileStatus()
             current_dir = ""
 
             for line in output:
@@ -196,68 +195,25 @@ class PyCvs():
                     match_dir = re.match(r".*Examining (.*)$", line)
                 match_new = re.match(r"\?\s+(.*)\s", line)
                 if match_file is not None:
+                    filename = current_dir + match_file.group(1)
                     if match_file.group(2) == "Locally Modified":
-                        modified.append(current_dir + match_file.group(1))
+                        files.add_file(FILE_MODIFIED, filename)
                     elif match_file.group(2) == "Locally Added":
-                        added.append(current_dir + match_file.group(1))
+                        files.add_file(FILE_ADDED, filename)
+                    elif match_file.group(2) == "Locally Removed":
+                        files.add_file(FILE_REMOVED, filename)
                     elif match_file.group(2) == "Needs Patch":
-                        outdated.append(current_dir + match_file.group(1))
+                        files.add_file(FILE_OUTDATED, filename)
                     elif match_file.group(2) == "Needs Merge":
-                        merging.append(current_dir + match_file.group(1))
+                        files.add_file(FILE_MERGING, filename)
                     elif match_file.group(2) == "File had conflicts on merge":
-                        merged.append(current_dir + match_file.group(1))
+                        files.add_file(FILE_MERGED, filename)
                 elif match_dir is not None:
                     current_dir = match_dir.group(1) + '/'
                 elif match_new is not None:
-                    new.append(match_new.group(1))
-
-            if len(new) != 0:
-                print("Untracked files:")
-                print(" (use pycvs add <file>... to add them for commit)\n")
-                for file in new:
-                    print(Fore.RED, "\t{0}".format(file))
-                print(Style.RESET_ALL, "")
-            if len(modified) != 0:
-                print("Changes staged for commit:")
-                print(" (use cvs commit... to check them in)\n")
-                for file in modified:
-                    print(Fore.GREEN, "\tmodified:\t", end="")
-                    print("{0}".format(file))
-                print(Style.RESET_ALL, "")
-            if len(added) != 0:
-                print("New files staged for commit:")
-                print(" (use cvs commit... to check them in)\n")
-                for file in added:
-                    if os.path.isfile(file.strip()):
-                        print(Fore.RED, "\tnew file:\t", end=""),
-                    else:
-                        print(Fore.RED, "\tnew directory:\t", end="")
-                    print("{0}".format(file))
-                print(Style.RESET_ALL, "")
-            if len(outdated) != 0:
-                print("Outdated files:")
-                print(" (use pycvs up <file>... to update them)\n")
-                for file in outdated:
-                    print(Fore.CYAN, "\toutdated:\t", end="")
-                    print(file)
-                print(Style.RESET_ALL, "")
-            if len(merging) != 0:
-                print("Changes that need to be merged before commit:")
-                print(" (use pycvs up <file>... to update them)\n")
-                for file in merging:
-                    print(Fore.CYAN, "\tto merge:\t", end="")
-                    print(file)
-                print(Style.RESET_ALL, "")
-            if len(merged) != 0:
-                print("Files that had conflicts and need to be committed:")
-                print(" (use cvs commit <file>... to check them in)\n")
-                for file in merged:
-                    print(Fore.GREEN, "\tmerged:\t", end="")
-                    print("{0}".format(file))
-                print(Style.RESET_ALL, "")
-
-            if new == [] and modified == [] and added == [] and merged == []:
-                print("nothing to commit, working directory clean")
+                    files.add_file(FILE_NEW, match_new.group(1))
+            
+            files.print_files()
 
     def _add(self, args):
         """

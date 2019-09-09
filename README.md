@@ -20,15 +20,9 @@ It runs only on Python 3 and depends on some libraries (available at PyPI):
 
 ## Installation
 
-To install the package from the source:
+Install from PyPI:
 
-    python setup.py install
-
-Or to install form the PyPI (soon):
-
-    pip install pycvs
-
-In both options the command pycvs will be available from the command line.
+    pip3 install pycvs
 
 ## Supported commands
 
