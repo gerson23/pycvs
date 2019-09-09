@@ -47,7 +47,7 @@ class FileStatus():
         kind_list = getattr(self, kind)
         kind_list.append(filename)
         setattr(self, kind, kind_list)
-    
+
     def print_files(self):
         if len(self.new) != 0:
             print("Untracked files:")
@@ -102,5 +102,5 @@ class FileStatus():
             print(Style.RESET_ALL, "")
 
         if (self.new == [] and self.modified == [] and self.added == []
-            and self.merged == [] and self.removed == []):
+                and self.merged == [] and self.removed == []):
             print("nothing to commit, working directory clean")

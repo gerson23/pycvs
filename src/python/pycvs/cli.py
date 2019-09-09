@@ -30,11 +30,12 @@ import pydoc
 
 # Additional dependencies
 import pexpect
-from colorama import Fore, Style
+from colorama import Fore
 
 # Library packages
 from pycvs.data import FileStatus
-from pycvs.data import FILE_ADDED, FILE_MERGED, FILE_MERGING, FILE_MODIFIED, FILE_NEW, FILE_REMOVED, FILE_OUTDATED
+from pycvs.data import (FILE_ADDED, FILE_MERGED, FILE_MERGING, FILE_MODIFIED,
+                        FILE_NEW, FILE_REMOVED, FILE_OUTDATED)
 
 
 class PyCvs():
@@ -212,7 +213,7 @@ class PyCvs():
                     current_dir = match_dir.group(1) + '/'
                 elif match_new is not None:
                     files.add_file(FILE_NEW, match_new.group(1))
-            
+
             files.print_files()
 
     def _add(self, args):
