@@ -93,6 +93,13 @@ class FileStatus():
                 print(Fore.GREEN, "\tmerged:\t", end="")
                 print("{0}".format(file))
             print(Style.RESET_ALL, "")
+        if len(self.removed) != 0:
+            print("Removed files staged for commit:")
+            print(" (use cvs commit <file>... to check them in)\n")
+            for filename in self.removed:
+                print(Fore.YELLOW, "\tremoved:\t", end="")
+                print(filename)
+            print(Style.RESET_ALL, "")
 
         if (self.new == [] and self.modified == [] and self.added == []
             and self.merged == [] and self.removed == []):
